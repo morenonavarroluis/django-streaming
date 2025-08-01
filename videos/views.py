@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from .models import Videos , Person
+from .models import Videos , Person , Users
 from django.shortcuts import get_object_or_404
 
 # vista del login
@@ -78,5 +78,9 @@ def eliminar_persona(request, id_persona):
      persona = Person.objects.get(id_persona=id_persona)
      persona.delete()
      return redirect('personas')
-    
+
+#funcion para ver los datos de los usuarios    
+def datos_user_admin(request):
+    usuarios = Users.objects.all()
+    return render(request, 'paginas/datos_user_admin.html', {'usuarios': usuarios})
     
