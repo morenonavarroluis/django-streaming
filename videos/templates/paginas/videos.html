@@ -1,0 +1,27 @@
+{% extends 'base/base_vidos.html' %}
+{% block title %}Videos{% endblock %}   
+{% block content %}
+    <div class="flex-container">
+        <div class="row justify-content-center">
+           {% if videos %}
+            <div id="video-player-container">
+                <img src="../../../static/img/logo.png" class="logo" alt="">
+                
+                {% for video in videos %}
+                    <video class="video-item" controls style="display: none;">
+                        <source src="{{ video.location.url }}" type="video/mp4">
+                    </video>
+                {% endfor %}
+                
+                <div class="video-controls">
+                    <button id="prev-btn">Anterior</button>
+                    <button id="next-btn">Siguiente</button>
+                </div>
+            </div>
+            {% else %}
+          <p>No hay videos disponibles.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
