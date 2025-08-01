@@ -83,4 +83,7 @@ def eliminar_persona(request, id_persona):
 def datos_user_admin(request):
     usuarios = Users.objects.all()
     return render(request, 'paginas/datos_user_admin.html', {'usuarios': usuarios})
+
+def espacio_admin(request):
+    return render(request, 'paginas/espacio_admin.html')
     
