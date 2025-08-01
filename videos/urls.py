@@ -12,7 +12,9 @@ urlpatterns = [
     path('video_regis', views.video_regis, name='video_regis'),
     path('personas', views.personas, name='personas'),
     path('editar_persona_admin', views.editar_persona_admin, name='editar_persona_admin'),
-    path('editar/<int:id_persona>', views.editar, name='editar_persona'),
+    path('regis_persona_admin', views.regis_persona_admin, name='regis_persona_admin'),
+    path('eliminar_persona/<int:id_persona>', views.eliminar_persona, name='eliminar_persona'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += [

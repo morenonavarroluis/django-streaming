@@ -13,10 +13,11 @@
     <div class="conta">
         <h2>Usuarios</h2>
            <div>
-
-  <button class="btn btn-primary"  data-bs-toggle="modal" data-bs-target="#Modalpersonaadmin" style="float: right; margin:-66px 30px 0px 0px;">Nuevo Usuario</button>
-
+       
+  <button class="btn btn-primary"  data-bs-toggle="modal" data-bs-target="#Modalpersonaadmin" style="float: right; margin:-66px 30px 0px 0px;">Nueva Persona</button>
+{% include "modal/regis_persona_admin.html" %}  
            </div>
+          
         <div class="controls">
             <input type="text" id="searchInput" placeholder="Buscar productos...">
             <select id="rowsPerPage">
@@ -52,10 +53,9 @@
                                         </button>
                                         <ul class="dropdown-menu">
                                             <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#Modalpersonaadmineditar{{ person.id_persona }}" href="#">Editar</a></li>
-                                            <form action="config/eliminar_persona" method="POST">
-                                                <input type="hidden" name="id_persona" value="<?php echo $row['id_persona']; ?>">
-                                                <li><button type="submit" class="dropdown-item">Eliminar</button></li>
-                                            </form>
+                                            
+                                                <li><a href="{% url 'eliminar_persona' person.id_persona %}" class="dropdown-item">Eliminar</a></li>
+                                        
                                             
                                         </ul>
                                     </div>
@@ -63,7 +63,7 @@
                     </tr>
                       {% include "modal/modal_persona_admin.html" %}   
                      {% endfor %}
-                                          
+                                         
                     </tbody>
             </table>
 
