@@ -16,6 +16,7 @@ urlpatterns = [
     path('eliminar_persona/<int:id_persona>', views.eliminar_persona, name='eliminar_persona'),
     path('datos_user_admin', views.datos_user_admin, name='datos_user_admin'),
     path('espacio_admin', views.espacio_admin, name='espacio_admin'),
+   
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

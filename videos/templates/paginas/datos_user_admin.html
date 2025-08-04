@@ -14,12 +14,12 @@
         <h2>Usuarios</h2>
            <div>
        
-  <button class="btn btn-primary"  data-bs-toggle="modal" data-bs-target="#Modalpersonaadmin" style="float: right; margin:-66px 30px 0px 0px;">Nueva Persona</button>
-
+  <button class="btn btn-primary"  data-bs-toggle="modal" data-bs-target="#Modalusuarioadmin" style="float: right; margin:-66px 30px 0px 0px;">Nueva Usuario</button>
+ 
            </div>
           
         <div class="controls">
-            <input type="text" id="searchInput" placeholder="Buscar productos...">
+            <input type="text" id="searchInput" placeholder="Buscar usuario...">
             <select id="rowsPerPage">
                 <option value="5">5 por página</option>
                 <option value="10">10 por página</option>
@@ -75,8 +75,11 @@
                         
                     
                 </main>
-
+{% include "modal/modal_user_admin.html" %}
              
             </div>
         </div>
+
+
+        
 {% endblock %}

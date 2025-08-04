@@ -3,7 +3,7 @@ import os
 import shutil
 from django.conf import settings
 from django.shortcuts import redirect, render
-from .models import Videos , Person , Users
+from .models import Videos , Person , Users ,Rols
 from django.shortcuts import get_object_or_404
 
 # vista del login
@@ -157,7 +157,7 @@ def espacio_admin(request):
 
     return render(request, 'paginas/espacio_admin.html', context)
 
-# Función auxiliar para el formato, al igual que en tu código PHP
+
 from math import log, floor
 
 def format_bytes(bytes_val, precision=2):
@@ -168,3 +168,11 @@ def format_bytes(bytes_val, precision=2):
     p = pow(1024, i)
     s = round(bytes_val / p, precision)
     return f"{s} {size_name[i]}"
+
+#funcion para registrar un usuario
+
+def regis_user_admin(request):
+    usuarios = Person.objects.all()
+    
+
+    return render(request, 'modal/modal_user_admin.html', {'usuarios': usuarios})
