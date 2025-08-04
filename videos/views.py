@@ -1,14 +1,40 @@
 from datetime import datetime
 import os
+from django.contrib import messages 
 import shutil
 from django.conf import settings
 from django.shortcuts import redirect, render
 from .models import Videos , Person , Users ,Rols
 from django.shortcuts import get_object_or_404
-
+from django.contrib.auth import authenticate, login ,logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.hashers import make_password
 # vista del login
 def index(request):
-    return render(request, 'paginas/index.html')
+      if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        # Use Django's built-in authenticate function
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            # If the user exists and the password is correct, log them in
+            login(request, user)
+            messages.success(request, f"Welcome back, {username}!")
+            # Redirect to a success page
+            return redirect('administrador')
+        else:
+            # If authentication fails, display an error message
+            messages.error(request, "Invalid username or password.")
+            
+    
+    
+    
+      return render(request, 'paginas/index.html', {'error': 'Credenciales incorrectas'})
+         
+   
+
 
 # vista de la pagina  todos los videos
 def videos(request):
@@ -17,7 +43,7 @@ def videos(request):
    
 
 
-# vista de la pagina de administracion
+
 def administrador(request):
     video = Videos.objects.all()
     return render(request, 'paginas/admin.html', {'video': video})
@@ -85,8 +111,10 @@ def eliminar_persona(request, id_persona):
 
 #funcion para ver los datos de los usuarios    
 def datos_user_admin(request):
+    personas = Person.objects.all()
+    roles = Rols.objects.all()
     usuarios = Users.objects.all()
-    return render(request, 'paginas/datos_user_admin.html', {'usuarios': usuarios})
+    return render(request, 'paginas/datos_user_admin.html', {'usuarios': usuarios , 'personas': personas, 'roles': roles})
 
 
 def format_bytes(bytes_value, precision=2):
@@ -170,9 +198,69 @@ def format_bytes(bytes_val, precision=2):
     return f"{s} {size_name[i]}"
 
 #funcion para registrar un usuario
-
 def regis_user_admin(request):
-    usuarios = Person.objects.all()
-    
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+        rol_id = request.POST.get('rol')
+        persona_id = request.POST.get('persona')
+        
+        # Validación de campos vacíos
+        if not all([username, password, rol_id, persona_id]):
+            messages.error(request, 'Todos los campos son obligatorios.')
+            return redirect('datos_user_admin')
+        
+        # Validación de longitud mínima de password
+        if len(password) < 8:
+            messages.error(request, 'La contraseña debe tener al menos 8 caracteres.')
+            return redirect('datos_user_admin')
+            
+        # Validación de formato de username
+        if not username.isalnum():
+            messages.error(request, 'El nombre de usuario solo puede contener letras y números.')
+            return redirect('datos_user_admin')
+            
+        # Verificar si el nombre de usuario ya existe
+        if Users.objects.filter(username__iexact=username).exists():
+            messages.error(request, 'El nombre de usuario ya existe. Por favor, elige otro.')
+            return redirect('datos_user_admin')
+            
+        try:
+            # Obtener la instancia del rol y la persona
+            rol_instance = get_object_or_404(Rols, id_rol=rol_id)
+            persona_instance = get_object_or_404(Person, id_persona=persona_id)
 
-    return render(request, 'modal/modal_user_admin.html', {'usuarios': usuarios})
+            # Crear usuario con contraseña encriptada
+            new_user = Users(
+                username=username,
+                password=make_password(password),  # Encriptación segura
+                rol_id=rol_instance,  # Asignar la instancia del rol
+                person_id=persona_instance  # Asignar la instancia de la persona
+            )
+            new_user.save()
+            messages.success(request, f'El usuario "{username}" ha sido registrado exitosamente como administrador.')
+            return redirect('datos_user_admin')
+            
+        except Exception as e:
+            messages.error(request, f'Error inesperado al registrar el usuario: {str(e)}')
+            return redirect('datos_user_admin')
+    
+    # Si el método no es POST, renderizar el template
+    context = {
+        'roles': Rols.objects.all(),  # Asegúrate de que tienes un modelo Rols
+        'personas': Person.objects.all()  # Asegúrate de que tienes un modelo Person
+    }
+    return render(request, 'paginas/datos_user_admin.html', context)
+
+#elimiar una persona 
+def eliminar_user_admin(request, id):
+     user = Users.objects.get(id=id)
+     user.delete()
+     return redirect('datos_user_admin')
+ 
+ 
+#logout de la aplicacion
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'Has cerrado sesión exitosamente.')
+    return redirect('index')

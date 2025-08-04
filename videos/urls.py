@@ -16,6 +16,10 @@ urlpatterns = [
     path('eliminar_persona/<int:id_persona>', views.eliminar_persona, name='eliminar_persona'),
     path('datos_user_admin', views.datos_user_admin, name='datos_user_admin'),
     path('espacio_admin', views.espacio_admin, name='espacio_admin'),
+    path('regis_user_admin', views.regis_user_admin, name='regis_user_admin'),
+    path('eliminar_user_admin/<int:id>', views.eliminar_user_admin, name='eliminar_user_admin'),
+    path('logout', views.logout_view, name='logout'),
+
    
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
