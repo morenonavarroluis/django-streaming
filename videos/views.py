@@ -404,5 +404,8 @@ def cambio_pass(request):
         user.save()
         messages.success(request, 'La contraseña se ha cambiado exitosamente.')
         
+        logout(request) 
+        return redirect('index')
+    
     return render(request, 'paginas/perfil_admin.html')
     
