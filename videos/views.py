@@ -6,36 +6,49 @@ from django.conf import settings
 from django.shortcuts import redirect, render
 from .models import Videos , Person , Users ,Rols
 from django.shortcuts import get_object_or_404
-from django.contrib.auth import authenticate, login ,logout
+from django.contrib.auth import authenticate, login ,logout 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm 
+from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
+from django.db import transaction
+
+
 # vista del login
 def index(request):
-      if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
 
-        # Use Django's built-in authenticate function
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            # If the user exists and the password is correct, log them in
-            login(request, user)
-            messages.success(request, f"Welcome back, {username}!")
-            # Redirect to a success page
-            return redirect('administrador')
+            if user is not None:
+                login(request, user)  
+                
+                # Redireccionar según el grupo del usuario
+                if user.groups.filter(name='administrador').exists():
+                    return redirect('administrador')
+                elif user.groups.filter(name='editor').exists():
+                    return redirect('editor')
+                elif user.groups.filter(name='consultor').exists():
+                    return redirect('consultor')
+                elif user.groups.filter(name='seguridad').exists():
+                    return redirect('datos_user')
+                else:
+                   
+                    return redirect('videos')  
         else:
-            # If authentication fails, display an error message
-            messages.error(request, "Invalid username or password.")
-            
+          
+            return render(request, 'paginas/index.html', {'form': form, 'error': 'Usuario o contraseña incorrectos'})
     
-    
-    
-      return render(request, 'paginas/index.html', {'error': 'Credenciales incorrectas'})
-         
-   
+    # Maneja la solicitud GET para mostrar el formulario
+    else:
+        form = AuthenticationForm()
+        return render(request, 'paginas/index.html', {'form': form})
 
-
+#------------------------------------------------------------#
 # vista de la pagina  todos los videos
 def videos(request):
     videos = Videos.objects.all()
@@ -59,62 +72,17 @@ def video_regis(request):
         print("Video registrado:", video.video_name)
         return redirect('administrador')  
 
- #funcion para ver los detalles de personas
-def personas(request):
-    person = Person.objects.all()
-    return render(request, 'paginas/personas.html', {'person': person})
 
-#funcion para editar una persona
-def editar_persona_admin(request):
-    if request.method == 'POST':
-        id_persona = request.POST.get('id_persona')
-        nombre = request.POST.get('nombre')
-        apellido = request.POST.get('apellido')
-        cedula = request.POST.get('cedula')
-        cargo = request.POST.get('cargo')
-        gerencia = request.POST.get('gerencia')
-        
-        persona = Person.objects.get(id_persona=id_persona)
-        persona.nombre = nombre
-        persona.apellido = apellido
-        persona.cedula = cedula
-        persona.cargo =  cargo
-        persona.gerencia = gerencia
-        persona.save()
-        
-        return redirect('personas')  
 
-#funcion para registrar una persona
-def regis_persona_admin(request):
-    if request.method == 'POST':
-        nombre = request.POST.get('nombre')
-        apellido = request.POST.get('apellido')
-        cedula = request.POST.get('cedula')
-        cargo = request.POST.get('cargo')
-        gerencia = request.POST.get('gerencia')
-        
-        persona = Person()
-        persona.nombre = nombre
-        persona.apellido = apellido
-        persona.cedula = cedula
-        persona.cargo = cargo
-        persona.gerencia = gerencia
-        persona.save()
-        
-        return redirect('personas')
-    
-#elimiar una persona 
-def eliminar_persona(request, id_persona):
-     persona = Person.objects.get(id_persona=id_persona)
-     persona.delete()
-     return redirect('personas')
 
 #funcion para ver los datos de los usuarios    
 def datos_user_admin(request):
-    personas = Person.objects.all()
-    roles = Rols.objects.all()
-    usuarios = Users.objects.all()
-    return render(request, 'paginas/datos_user_admin.html', {'usuarios': usuarios , 'personas': personas, 'roles': roles})
+    groups  = Group.objects.all()
+    usuarios = User.objects.all()
+    contexto ={
+        'usuarios': usuarios , 'groups':  groups
+    }
+    return render(request, 'paginas/datos_user_admin.html', contexto)
 
 
 def format_bytes(bytes_value, precision=2):
@@ -200,13 +168,13 @@ def format_bytes(bytes_val, precision=2):
 #funcion para registrar un usuario
 def regis_user_admin(request):
     if request.method == 'POST':
+        first_name = request.POST.get('first_name', '').strip()
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '').strip()
         rol_id = request.POST.get('rol')
-        persona_id = request.POST.get('persona')
-        
+        print(rol_id)
         # Validación de campos vacíos
-        if not all([username, password, rol_id, persona_id]):
+        if not all([first_name, username, password, rol_id]):
             messages.error(request, 'Todos los campos son obligatorios.')
             return redirect('datos_user_admin')
         
@@ -221,40 +189,41 @@ def regis_user_admin(request):
             return redirect('datos_user_admin')
             
         # Verificar si el nombre de usuario ya existe
-        if Users.objects.filter(username__iexact=username).exists():
+        if User.objects.filter(username__iexact=username).exists():
             messages.error(request, 'El nombre de usuario ya existe. Por favor, elige otro.')
             return redirect('datos_user_admin')
-            
-        try:
-            # Obtener la instancia del rol y la persona
-            rol_instance = get_object_or_404(Rols, id_rol=rol_id)
-            persona_instance = get_object_or_404(Person, id_persona=persona_id)
 
-            # Crear usuario con contraseña encriptada
-            new_user = Users(
-                username=username,
-                password=make_password(password),  # Encriptación segura
-                rol_id=rol_instance,  # Asignar la instancia del rol
-                person_id=persona_instance  # Asignar la instancia de la persona
-            )
-            new_user.save()
-            messages.success(request, f'El usuario "{username}" ha sido registrado exitosamente como administrador.')
-            return redirect('datos_user_admin')
+        try:
+        
+            with transaction.atomic():
+             
+                new_user = User.objects.create_user(
+                    first_name = first_name,
+                    username=username,
+                    password=password,
+                )
+
+                
+                rol_instance = get_object_or_404(Group, id=rol_id)
+                new_user.groups.add(rol_instance)
+
+               
+
+                messages.success(request, f'El usuario "{username}" ha sido registrado exitosamente.')
+                return redirect('datos_user_admin')
             
         except Exception as e:
             messages.error(request, f'Error inesperado al registrar el usuario: {str(e)}')
             return redirect('datos_user_admin')
     
-    # Si el método no es POST, renderizar el template
-    context = {
-        'roles': Rols.objects.all(),  # Asegúrate de que tienes un modelo Rols
-        'personas': Person.objects.all()  # Asegúrate de que tienes un modelo Person
-    }
-    return render(request, 'paginas/datos_user_admin.html', context)
+    
+    
+    
+    return render(request, 'paginas/datos_user_admin.html')
 
-#elimiar una persona 
+#elimiar una usuario
 def eliminar_user_admin(request, id):
-     user = Users.objects.get(id=id)
+     user = User.objects.get(id=id)
      user.delete()
      return redirect('datos_user_admin')
  
@@ -264,3 +233,176 @@ def logout_view(request):
     logout(request)
     messages.success(request, 'Has cerrado sesión exitosamente.')
     return redirect('index')
+
+#----------------------------------------------------------#
+
+
+def editor(request):
+    video = Videos.objects.all()
+   
+    return render(request, 'paginas/editor.html', {'video': video})
+
+
+def espacio_editor(request):
+    """
+    Vista que calcula el estado del disco y lo pasa al template.
+    """
+    # Lógica para la primera sección (espacio general)
+    try:
+        # Usa el directorio raíz de los archivos de medios como punto de referencia
+        path_to_check = settings.BASE_DIR 
+        
+        disk_total_bytes, disk_used_bytes, disk_free_bytes = shutil.disk_usage(path_to_check)
+        
+        percentage_used = (disk_used_bytes / disk_total_bytes) * 100
+        percentage_free = 100 - percentage_used
+        
+        main_disk_data = {
+            'total': format_bytes(disk_total_bytes),
+            'used': format_bytes(disk_used_bytes),
+            'free': format_bytes(disk_free_bytes),
+            'percentage_used': round(percentage_used, 2),
+            'percentage_free': round(percentage_free, 2),
+            'last_updated': datetime.now().strftime('%H:%M %d/%m/%Y'),
+        }
+    except Exception as e:
+        # Manejo de errores si no se puede acceder a la información del disco
+        main_disk_data = None
+        print(f"Error al obtener el estado del disco: {e}")
+
+    # Lógica para la segunda sección (particiones del sistema)
+    partitions_list = []
+    # Usamos una lista de directorios comunes para el ejemplo.
+    # Puedes ajustarla según las necesidades de tu servidor.
+    partitions_to_check = ['/', '/home', '/var', '/tmp'] 
+
+    for path in partitions_to_check:
+        if os.path.exists(path):
+            try:
+                total, used, free = shutil.disk_usage(path)
+                percent = (used / total) * 100
+                
+                partitions_list.append({
+                    'name': path,
+                    'total': format_bytes(total),
+                    'free': format_bytes(free),
+                    'used': format_bytes(used),
+                    'percent': round(percent, 2),
+                    'bar_class': 'bg-danger' if percent > 90 else ('bg-warning' if percent > 70 else 'bg-success')
+                })
+            except Exception:
+                continue
+
+    context = {
+        'main_disk_data': main_disk_data,
+        'partitions': partitions_list,
+    }
+
+    return render(request, 'paginas/espacio_editor.html', context)
+
+
+
+#--------------------------------------------------------------------------------------- #
+
+
+def consultor(request):
+    
+      video = Videos.objects.all()
+   
+      return render(request, 'paginas/consulta.html', {'video': video})
+  
+def espacio_con(request):
+      # Lógica para la primera sección (espacio general)
+    try:
+        # Usa el directorio raíz de los archivos de medios como punto de referencia
+        path_to_check = settings.BASE_DIR 
+        
+        disk_total_bytes, disk_used_bytes, disk_free_bytes = shutil.disk_usage(path_to_check)
+        
+        percentage_used = (disk_used_bytes / disk_total_bytes) * 100
+        percentage_free = 100 - percentage_used
+        
+        main_disk_data = {
+            'total': format_bytes(disk_total_bytes),
+            'used': format_bytes(disk_used_bytes),
+            'free': format_bytes(disk_free_bytes),
+            'percentage_used': round(percentage_used, 2),
+            'percentage_free': round(percentage_free, 2),
+            'last_updated': datetime.now().strftime('%H:%M %d/%m/%Y'),
+        }
+    except Exception as e:
+        # Manejo de errores si no se puede acceder a la información del disco
+        main_disk_data = None
+        print(f"Error al obtener el estado del disco: {e}")
+
+    # Lógica para la segunda sección (particiones del sistema)
+    partitions_list = []
+    # Usamos una lista de directorios comunes para el ejemplo.
+    # Puedes ajustarla según las necesidades de tu servidor.
+    partitions_to_check = ['/', '/home', '/var', '/tmp'] 
+
+    for path in partitions_to_check:
+        if os.path.exists(path):
+            try:
+                total, used, free = shutil.disk_usage(path)
+                percent = (used / total) * 100
+                
+                partitions_list.append({
+                    'name': path,
+                    'total': format_bytes(total),
+                    'free': format_bytes(free),
+                    'used': format_bytes(used),
+                    'percent': round(percent, 2),
+                    'bar_class': 'bg-danger' if percent > 90 else ('bg-warning' if percent > 70 else 'bg-success')
+                })
+            except Exception:
+                continue
+
+    context = {
+        'main_disk_data': main_disk_data,
+        'partitions': partitions_list,
+    }
+
+    return render(request, 'paginas/espacio_con.html', context)
+
+
+
+
+def datos_user(request):
+    personas = Person.objects.all()
+    roles = Rols.objects.all()
+    usuarios = User.objects.all()
+    return render(request, 'paginas/datos_user.html', {'usuarios': usuarios , 'personas': personas, 'roles': roles})
+
+
+def perfil_admin(request):
+    all_usuario = User.objects.all()
+    
+    return render(request, 'paginas/perfil_admin.html', {'all_usuario': all_usuario})
+
+def cambio_pass(request):
+    if request.method == 'POST':
+        
+        user = request.user
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if not user.check_password(current_password):
+            messages.error(request, 'La contraseña actual es incorrecta.')
+            return redirect('perfil_admin') 
+
+        if new_password != confirm_password:
+            messages.error(request, 'Las nuevas contraseñas no coinciden.')
+            return redirect('perfil_admin')
+
+        if len(new_password) < 8:
+            messages.error(request, 'La nueva contraseña debe tener al menos 8 caracteres.')
+            return redirect('perfil_admin')
+
+        user.set_password(new_password)
+        user.save()
+        mensage = messages.success(request, 'La contraseña se ha cambiado exitosamente.')
+        
+    return render(request, 'paginas/perfil_admin.html', {'mensage': mensage})
+    

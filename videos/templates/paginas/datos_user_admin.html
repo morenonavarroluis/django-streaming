@@ -39,38 +39,42 @@
                 <table id="myTable">
                 <thead>
                     <tr>
-                        <th>usuario</th>
-                        <th>asignado</th>
-                        <th>rol</th>
+                        <th>Usuario</th>
+                        <th>Nombre</th>
+                        <th>Rol</th>
                        
                         <th >accion</th>
                     </tr>
                 </thead>
-                <tbody>
-                {% for user in usuarios %}
-                    <tr>
-                        
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.person_id.nombre }}</td>
-                    <td>{{ user.rol_id.roles }}</td>     
-                        <td>
-                            <!-- Example split danger button -->
-                                  <div class="btn-group">
-                                        <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <span class="visually">opcion</span>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#Modalpersonaadmineditar{{ person.id_persona }}" href="#">Editar</a></li>
-                                            
-                                                <li><a href="{% url 'eliminar_user_admin' user.id %}" class="dropdown-item">Eliminar</a></li>
-                                        
-                                            
-                                        </ul>
-                                    </div>
-                        </td>
-                    </tr>
-                      
-                     {% endfor %}
+           <tbody>
+    {% for user in usuarios %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.first_name }}</td>
+            
+            <td>
+                {% for group in user.groups.all %}
+                    <span >{{ group.name }}</span>
+                {% empty %}
+                    <span >Sin grupo asignado</span>
+                {% endfor %}
+            </td>
+            
+            <td>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually">opcion</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#Modalpersonaadmineditar{{ person.id_persona }}" href="#">Editar</a></li>
+                        <li><a href="{% url 'eliminar_user_admin' user.id %}" class="dropdown-item">Eliminar</a></li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+        {% include "modal/modal_user_admin.html" %}
+        {% include "modal/modal_persona_admin.html" %}
+    {% endfor %}
                                          
                     </tbody>
             </table>
@@ -84,7 +88,7 @@
                         
                     
                 </main>
-{% include "modal/modal_user_admin.html" %}
+
          
             </div>
         </div>

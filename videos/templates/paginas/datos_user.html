@@ -1,0 +1,96 @@
+{% extends "base/base_seguridad.html" %}
+
+{% block titulo %}MercalStream - Videos{% endblock %}
+
+{% block content %}
+  <div id="layoutSidenav_content">
+               {% if messages %}
+          <div class="messages">
+            {% for message in messages %}
+              <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}info{% endif %}" role="alert">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}  
+    <main>
+                
+                       
+                     
+                            <br>
+                            <br>
+    <div class="conta">
+        <h2>Usuarios</h2>
+           <div>
+       
+  <button class="btn btn-primary"  data-bs-toggle="modal" data-bs-target="#Modalusuarioadmin" style="float: right; margin:-66px 30px 0px 0px;">Nueva Usuario</button>
+ 
+           </div>
+          
+        <div class="controls">
+            <input type="text" id="searchInput" placeholder="Buscar usuario...">
+            <select id="rowsPerPage">
+                <option value="5">5 por página</option>
+                <option value="10">10 por página</option>
+                <option value="20">20 por página</option>
+            </select>
+        </div>
+
+                <table id="myTable">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Nombre</th>
+                        <th>Rol</th>
+                       
+                        <th >accion</th>
+                    </tr>
+                </thead>
+           <tbody>
+    {% for user in usuarios %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.first_name }}</td>
+            
+            <td>
+                {% for group in user.groups.all %}
+                    <span >{{ group.name }}</span>
+                {% empty %}
+                    <span class="badge bg-warning text-dark">Sin grupo asignado</span>
+                {% endfor %}
+            </td>
+            
+            <td>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually">opcion</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#Modalpersonaadmineditar{{ person.id_persona }}" href="#">Editar</a></li>
+                        <li><a href="{% url 'eliminar_user_admin' user.id %}" class="dropdown-item">Eliminar</a></li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    {% endfor %}
+                                         
+                    </tbody>
+            </table>
+
+        <div class="pagination">
+            <button id="prevBtn">Anterior</button>
+            <span id="pageNumbers"></span>
+            <button id="nextBtn">Siguiente</button>
+        </div>
+    </div>
+                        
+                    
+                </main>
+{% include "modal/modal_user_admin.html" %}
+         
+            </div>
+        </div>
+
+
+        
+{% endblock %}

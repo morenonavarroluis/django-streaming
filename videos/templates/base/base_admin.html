@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> <!-- Cambia a un archivo local si es necesario -->
     <link rel="stylesheet" href="{% static './css/tablas.css' %}">
     <link rel="stylesheet" href="{% static './css/perfil.css' %}">
+    <link rel="shortcut icon" href="{% static './img/logo.png' %}" type="image/x-icon">
 </head>
 
 <body>
@@ -40,14 +41,9 @@
                         <a class="nav-link" href="{% url 'datos_user_admin' %}"><i class="fas fa-users me-1"></i> Usuarios</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'personas' %}"><i class="fas fa-users me-1"></i> Personas</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'espacio_admin' %}"><i class="fas fa-map-marker-alt me-1"></i> Espacio Libre</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="cambio_pass_admin"><i class="fas fa-key me-1"></i> Cambiar contraseña</a>
-                    </li>
+                   
                 </ul>
 
                 <!-- Menú usuario -->
@@ -58,7 +54,7 @@
                             <span class="d-none d-lg-inline">Usuario</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="perfil_admin"><i class="fas fa-user-circle me-2"></i> Perfil</a></li>
+                            <li><a class="dropdown-item" href="{% url 'perfil_admin' %}"><i class="fas fa-user-circle me-2"></i> Perfil</a></li>
                             <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Configuración</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Salir</a></li>
@@ -87,5 +83,9 @@
     <script src="{% static 'estilos/js/tablas.js' %}" ></script>
     <script src="{% static 'estilos/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'estilos/js/dark.js' %}"></script>
- </body>
+ 
+
+
+
+</body>
 </html>
