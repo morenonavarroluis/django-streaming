@@ -15,16 +15,16 @@
     {% endif %}  ----->
 
     {% if messages %}
-        {% for message in messages %}
-            <script>
-                Swal.fire({
-                    title: 'EXITO',
-                    text: 'Registro Realizado con Exito',
-                    icon: 'success',
-                })
-            </script>
-        {% endfor %}
-    {% endif }
+           {% for message in messages %}
+               <script>
+                   Swal.fire({
+                       title: '{{ message.tags|title }}',
+                       text: '{{ message }}',
+                       icon: '{{ message.tags }}'
+                   });
+               </script>
+           {% endfor %}
+       {% endif %}
 
     <div class="co">
         <div class="profile-header">

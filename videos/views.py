@@ -402,7 +402,7 @@ def cambio_pass(request):
 
         user.set_password(new_password)
         user.save()
-        mensage = messages.success(request, 'La contraseña se ha cambiado exitosamente.')
+        messages.success(request, 'La contraseña se ha cambiado exitosamente.')
         
-    return render(request, 'paginas/perfil_admin.html', {'mensage': mensage})
+    return render(request, 'paginas/perfil_admin.html')
     
