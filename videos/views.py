@@ -4,7 +4,7 @@ from django.contrib import messages
 import shutil
 from django.conf import settings
 from django.shortcuts import redirect, render
-from .models import Videos , Person , Users ,Rols
+from .models import Videos
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate, login ,logout 
 from django.contrib.auth.decorators import login_required
@@ -15,7 +15,7 @@ from django.contrib.auth.models import Group
 from django.db import transaction
 
 
-# vista del login
+#-------------------------- logica de login----------------------------------#
 def index(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -47,21 +47,92 @@ def index(request):
     else:
         form = AuthenticationForm()
         return render(request, 'paginas/index.html', {'form': form})
-
-#------------------------------------------------------------#
+#--------------------------fin de logica de login----------------------------------#
+#-------------------------consulta para ver los videos -----------------------------------#
 # vista de la pagina  todos los videos
 def videos(request):
     videos = Videos.objects.all()
     return render(request, 'paginas/videos.html', {'videos': videos})
-   
+# fin de vista de la pagina  todos los videos  
 
 
-
+#----------------------------Administrador--------------------------------#
 def administrador(request):
     video = Videos.objects.all()
     return render(request, 'paginas/admin.html', {'video': video})
-    
 
+def eliminar_video_admin(request, video_id):
+    
+    video = get_object_or_404(Videos, video_id=video_id)
+    
+   
+    if request.method == 'GET':
+        video_titulo = video.video_name
+        video.delete()
+        messages.success(request, f'El video {video_titulo} fue eliminado exitosamente.')
+        
+       
+        return redirect('administrador')
+    
+    
+    return render(request, 'confirmar_eliminacion.html', {'video': video})
+
+
+def editar_name_video(request, video_id): 
+    
+    video = get_object_or_404(Videos, video_id=video_id)
+
+    if request.method == 'POST':
+        
+        new_video_name = request.POST.get('video_name')
+
+        if new_video_name:
+            video.video_name = new_video_name
+            video.save()
+            messages.success(request, f'El nombre del video fue actualizado exitosamente a {new_video_name}.')
+            return redirect('administrador')
+        else:
+            messages.error(request, 'El nombre del video no puede estar vacío.')
+
+    
+    return render(request, 'paginas/admin.html', {'video': video})
+        
+        
+def editar_user_admin(request, id):
+    
+    use = get_object_or_404(User, id=id)
+
+   
+    if request.method == 'POST':
+       
+        try:
+            with transaction.atomic():   
+                first_name = request.POST.get('first_name')
+                username = request.POST.get('username')
+                password = request.POST.get('password')
+                rol_id = request.POST.get('rol') 
+                use.first_name = first_name
+                use.username = username
+                if password:
+                    use.set_password(password)
+                use.save()
+                if rol_id:
+                    nuevo_rol = get_object_or_404(Group, id=rol_id)   
+                    use.groups.clear()
+                    use.groups.add(nuevo_rol)
+                messages.success(request, 'Usuario actualizado exitosamente.')
+                return redirect('datos_user_admin') 
+
+        except Exception as e:
+           
+            messages.error(request, f'Ocurrió un error al actualizar el usuario: {e}')
+            return redirect('datos_user_admin')
+
+  
+     
+         
+          
+            
 #funcion para registrar una videos
 def video_regis(request):
     if request.method == 'POST':
@@ -209,7 +280,7 @@ def regis_user_admin(request):
 
                
 
-                messages.success(request, f'El usuario "{username}" ha sido registrado exitosamente.')
+                messages.success(request, f'El usuario {username} ha sido registrado exitosamente.')
                 return redirect('datos_user_admin')
             
         except Exception as e:
@@ -225,8 +296,49 @@ def regis_user_admin(request):
 def eliminar_user_admin(request, id):
      user = User.objects.get(id=id)
      user.delete()
+     messages.success(request, f'El Usuario fue eliminado correctamente')
      return redirect('datos_user_admin')
  
+ 
+ 
+ 
+def perfil_admin(request):
+    all_usuario = User.objects.all()
+    
+    return render(request, 'paginas/perfil_admin.html', {'all_usuario': all_usuario})
+
+def cambio_pass(request):
+    if request.method == 'POST':
+        
+        user = request.user
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if not user.check_password(current_password):
+            messages.error(request, 'La contraseña actual es incorrecta.')
+            return redirect('perfil_admin') 
+
+        if new_password != confirm_password:
+            messages.error(request, 'Las nuevas contraseñas no coinciden.')
+            return redirect('perfil_admin')
+
+        if len(new_password) < 8:
+            messages.error(request, 'La nueva contraseña debe tener al menos 8 caracteres.')
+            return redirect('perfil_admin')
+
+        user.set_password(new_password)
+        user.save()
+        messages.success(request, 'La contraseña se ha cambiado exitosamente.')
+        
+        logout(request) 
+        return redirect('index')
+    
+    return render(request, 'paginas/perfil_admin.html')
+    
+ 
+
+#----------------------------  fin de el Administrador--------------------------------#
  
 #logout de la aplicacion
 def logout_view(request):
@@ -234,7 +346,7 @@ def logout_view(request):
     messages.success(request, 'Has cerrado sesión exitosamente.')
     return redirect('index')
 
-#----------------------------------------------------------#
+#------------------------Editor----------------------------------#
 
 
 def editor(request):
@@ -300,9 +412,9 @@ def espacio_editor(request):
 
     return render(request, 'paginas/espacio_editor.html', context)
 
+#------------------------ fin del Editor----------------------------------#
 
-
-#--------------------------------------------------------------------------------------- #
+#----------------------------------- consultor---------------------------------------------------- #
 
 
 def consultor(request):
@@ -366,46 +478,12 @@ def espacio_con(request):
     return render(request, 'paginas/espacio_con.html', context)
 
 
+#-----------------------------------fin del consultor---------------------------------------------------- #
 
-
+#----------------------------------- Seguridad---------------------------------------------------- #
 def datos_user(request):
-    personas = Person.objects.all()
-    roles = Rols.objects.all()
+   
     usuarios = User.objects.all()
-    return render(request, 'paginas/datos_user.html', {'usuarios': usuarios , 'personas': personas, 'roles': roles})
+    return render(request, 'paginas/datos_user.html', {'usuarios': usuarios })
 
-
-def perfil_admin(request):
-    all_usuario = User.objects.all()
-    
-    return render(request, 'paginas/perfil_admin.html', {'all_usuario': all_usuario})
-
-def cambio_pass(request):
-    if request.method == 'POST':
-        
-        user = request.user
-        current_password = request.POST.get('current_password')
-        new_password = request.POST.get('new_password')
-        confirm_password = request.POST.get('confirm_password')
-
-        if not user.check_password(current_password):
-            messages.error(request, 'La contraseña actual es incorrecta.')
-            return redirect('perfil_admin') 
-
-        if new_password != confirm_password:
-            messages.error(request, 'Las nuevas contraseñas no coinciden.')
-            return redirect('perfil_admin')
-
-        if len(new_password) < 8:
-            messages.error(request, 'La nueva contraseña debe tener al menos 8 caracteres.')
-            return redirect('perfil_admin')
-
-        user.set_password(new_password)
-        user.save()
-        messages.success(request, 'La contraseña se ha cambiado exitosamente.')
-        
-        logout(request) 
-        return redirect('index')
-    
-    return render(request, 'paginas/perfil_admin.html')
-    
+#-----------------------------------fin de seguridad---------------------------------------------------- #

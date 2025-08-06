@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib import admin
 
 
-admin.site.site_header = "MercalStreamg"
+admin.site.site_header = "MercalStream"
 
 
 admin.site.site_title = "MercalStreamg"

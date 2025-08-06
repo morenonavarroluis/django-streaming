@@ -8,7 +8,10 @@ from django.views.static import serve
 urlpatterns = [
     path('', views.videos, name='videos'),
     path('index', views.index, name='index'),
+    path('editar_name_video/<int:video_id>/', views.editar_name_video, name='editar_name_video'),
     path('administrador', views.administrador, name='administrador'),
+    path('editar_user_admin/<int:id>', views.editar_user_admin, name='editar_user_admin'),
+    path('eliminar_video_admin/<int:video_id>', views.eliminar_video_admin, name='eliminar_video_admin'),
     path('video_regis', views.video_regis, name='video_regis'),
     path('datos_user_admin', views.datos_user_admin, name='datos_user_admin'),
     path('espacio_admin', views.espacio_admin, name='espacio_admin'),
