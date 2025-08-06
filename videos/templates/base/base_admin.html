@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="{% static './css/perfil.css' %}">
     <link rel="shortcut icon" href="{% static './img/logo.png' %}" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
 
 </head>
 
@@ -75,16 +76,24 @@
     {% block content %}
     {% endblock %}
 
-    <style>
+  <!---  <style>
         body.dark-mode {
             background-color: #121212;
             color: #f1f1f1;
         }
+
+
+          .conta.dark-mode,.conta.dark-mode > h2 {
+            background-color: #121212;
+            color: #f1f1f1;
+            
+        }
     
-    </style>
-    <script src="{% static 'estilos/js/tablas.js' %}" ></script>
+    </style>------->
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+     <script src="{% static 'estilos/js/tablas.js' %}" ></script>
     <script src="{% static 'estilos/js/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'estilos/js/dark.js' %}"></script>
+    
  
 
 
