@@ -1,30 +1,28 @@
+// Espera a que el DOM esté completamente cargado
+document.addEventListener('DOMContentLoaded', () => {
 
-      document.addEventListener('DOMContentLoaded', () => {
-            const html = document;
-            const toggleBtn = document.getElementById('themeToggle');
-            const themeIcon = document.getElementById('themeIcon');
-            const body = document.body;
-            const conta = document.querySelector('.conta');
+    // Selecciona el botón y el ícono
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const htmlElement = document.documentElement;
 
-            // Verificar preferencia guardada
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                //body.classList.add('dark-mode');
-                html.data.add('dark-mode');
-                conta.classList.add('dark-mode');
-                themeIcon.className = 'fas fa-sun';
-            }
+    // Función para cambiar el tema
+    function toggleTheme() {
+        if (htmlElement.getAttribute('data-bs-theme') === 'dark') {
+            // Si el tema actual es oscuro, lo cambia a claro
+            htmlElement.setAttribute('data-bs-theme', 'light');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+            themeIcon.style.color = 'black'; // Cambia el color del ícono para el tema claro
+        } else {
+            // Si el tema actual es claro, lo cambia a oscuro
+            htmlElement.setAttribute('data-bs-theme', 'dark');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+            themeIcon.style.color = 'white'; // Cambia el color del ícono para el tema oscuro
+        }
+    }
 
-            // Manejar clic del botón
-            toggleBtn.addEventListener('click', () => {
-                body.classList.toggle('dark-mode');
-                conta.classList.toggle('dark-mode');
-                if (body.classList.contains('dark-mode')) {
-                    themeIcon.className = 'fas fa-sun';
-                    localStorage.setItem('theme', 'dark');
-                } else {
-                    themeIcon.className = 'fas fa-moon';
-                    localStorage.setItem('theme', 'light');
-                }
-            });
-        });
+    // Agrega un "event listener" al botón
+    themeToggle.addEventListener('click', toggleTheme);
+});

@@ -57,9 +57,13 @@ def videos(request):
 
 
 #----------------------------Administrador--------------------------------#
+@login_required
 def administrador(request):
     video = Videos.objects.all()
     return render(request, 'paginas/admin.html', {'video': video})
+
+
+
 
 def eliminar_video_admin(request, video_id):
     
@@ -70,11 +74,7 @@ def eliminar_video_admin(request, video_id):
         video_titulo = video.video_name
         video.delete()
         messages.success(request, f'El video {video_titulo} fue eliminado exitosamente.')
-        
-       
         return redirect('administrador')
-    
-    
     return render(request, 'confirmar_eliminacion.html', {'video': video})
 
 
@@ -140,13 +140,14 @@ def video_regis(request):
         video.video_name = request.POST.get('name')
         video.location = request.FILES.get('video')        
         video.save()
-        print("Video registrado:", video.video_name)
+        messages.success(request, f'El video fue guardado exitosamente')
         return redirect('administrador')  
 
 
 
 
 #funcion para ver los datos de los usuarios    
+@login_required
 def datos_user_admin(request):
     groups  = Group.objects.all()
     usuarios = User.objects.all()
@@ -166,6 +167,8 @@ def format_bytes(bytes_value, precision=2):
     pow_val = min(pow_val, len(units) - 1)
     bytes_value /= (1 << (10 * pow_val))
     return f"{bytes_value:.{precision}f} {units[pow_val]}"
+
+@login_required
 
 def espacio_admin(request):
     """
@@ -301,7 +304,7 @@ def eliminar_user_admin(request, id):
  
  
  
- 
+@login_required
 def perfil_admin(request):
     all_usuario = User.objects.all()
     
@@ -348,13 +351,90 @@ def logout_view(request):
 
 #------------------------Editor----------------------------------#
 
-
+@login_required
 def editor(request):
     video = Videos.objects.all()
    
     return render(request, 'paginas/editor.html', {'video': video})
 
 
+def video_editor(request, video_id):
+    # Obtener el objeto Video o mostrar un error 404 si no existe
+    video = get_object_or_404(Videos, video_id=video_id)
+
+    if request.method == 'POST':
+        # Actualiza solo el nombre del video si el formulario lo envía
+        if 'video_name' in request.POST:
+            video.video_name = request.POST.get('video_name')
+        
+        # Opcional: Si también quieres permitir cambiar el archivo, usa esto
+        # if 'video' in request.FILES:
+        #     video.location = request.FILES.get('video')
+
+        video.save()
+        print("Video actualizado:", video.video_name)
+        return redirect('editor')
+    
+    # Si la solicitud no es POST, renderiza la plantilla (si es necesario)
+    return render(request, 'nombre_de_tu_template.html', {'video': video})
+def regis_editor(request):
+    if request.method == 'POST':
+        video = Videos()       
+        video.video_name = request.POST.get('name')
+        video.location = request.FILES.get('video')        
+        video.save()
+        messages.success(request, f'El video fue guardado exitosamente')
+        return redirect('editor')  
+    
+       
+def eliminar_video_editor(request, video_id):
+    
+    video = get_object_or_404(Videos, video_id=video_id)
+    
+   
+    if request.method == 'GET':
+        video_titulo = video.video_name
+        video.delete()
+        messages.success(request, f'El video {video_titulo} fue eliminado exitosamente.')
+        return redirect('editor')
+    return render(request, 'confirmar_eliminacion.html', {'video': video})
+@login_required
+def perfil_editor(request):
+    all_usuario = User.objects.all()
+    
+    return render(request, 'paginas/perfil_editor.html', {'all_usuario': all_usuario})
+
+
+def cambio_pass_editor(request):
+    if request.method == 'POST':
+        
+        user = request.user
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if not user.check_password(current_password):
+            messages.error(request, 'La contraseña actual es incorrecta.')
+            return redirect('perfil_editor') 
+
+        if new_password != confirm_password:
+            messages.error(request, 'Las nuevas contraseñas no coinciden.')
+            return redirect('perfil_editor')
+
+        if len(new_password) < 8:
+            messages.error(request, 'La nueva contraseña debe tener al menos 8 caracteres.')
+            return redirect('perfil_editor')
+
+        user.set_password(new_password)
+        user.save()
+        messages.success(request, 'La contraseña se ha cambiado exitosamente.')
+        
+        logout(request) 
+        return redirect('index')
+    
+    return render(request, 'paginas/perfil_editor.html')
+    
+@login_required
 def espacio_editor(request):
     """
     Vista que calcula el estado del disco y lo pasa al template.
@@ -414,15 +494,45 @@ def espacio_editor(request):
 
 #------------------------ fin del Editor----------------------------------#
 
-#----------------------------------- consultor---------------------------------------------------- #
+#-----------------------------------consultor---------------------------------------------------- #
 
-
+@login_required
 def consultor(request):
     
       video = Videos.objects.all()
    
       return render(request, 'paginas/consulta.html', {'video': video})
-  
+
+def cambio_de_password(request):
+    if request.method == 'POST':
+        
+        user = request.user
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if not user.check_password(current_password):
+            messages.error(request, 'La contraseña actual es incorrecta.')
+            return redirect('perfil_consultor') 
+
+        if new_password != confirm_password:
+            messages.error(request, 'Las nuevas contraseñas no coinciden.')
+            return redirect('perfil_consultor')
+
+        if len(new_password) < 8:
+            messages.error(request, 'La nueva contraseña debe tener al menos 8 caracteres.')
+            return redirect('perfil_consultor')
+
+        user.set_password(new_password)
+        user.save()
+        messages.success(request, 'La contraseña se ha cambiado exitosamente.')
+        
+        logout(request) 
+        return redirect('index')
+    
+    return render(request, 'paginas/perfil_consultor.html')
+
+@login_required
 def espacio_con(request):
       # Lógica para la primera sección (espacio general)
     try:
@@ -477,13 +587,142 @@ def espacio_con(request):
 
     return render(request, 'paginas/espacio_con.html', context)
 
+@login_required
+def perfil_consultor(request):
+    return render(request, 'paginas/perfil_consultor.html')
 
 #-----------------------------------fin del consultor---------------------------------------------------- #
 
 #----------------------------------- Seguridad---------------------------------------------------- #
+@login_required
 def datos_user(request):
-   
+    groups  = Group.objects.all()
     usuarios = User.objects.all()
-    return render(request, 'paginas/datos_user.html', {'usuarios': usuarios })
+    return render(request, 'paginas/datos_user.html', {'usuarios': usuarios , 'groups':  groups })
 
+def editar_datos_user(request,id):
+        use = get_object_or_404(User, id=id)
+        if request.method == 'POST':
+        
+            try:
+                with transaction.atomic():   
+                    first_name = request.POST.get('first_name')
+                    username = request.POST.get('username')
+                    password = request.POST.get('password')
+                    rol_id = request.POST.get('rol') 
+                    use.first_name = first_name
+                    use.username = username
+                    if password:
+                        use.set_password(password)
+                    use.save()
+                    if rol_id:
+                        nuevo_rol = get_object_or_404(Group, id=rol_id)   
+                        use.groups.clear()
+                        use.groups.add(nuevo_rol)
+                    messages.success(request, 'Usuario actualizado exitosamente.')
+                    return redirect('datos_user') 
+
+            except Exception as e:
+            
+                messages.error(request, f'Ocurrió un error al actualizar el usuario: {e}')
+                return redirect('datos_user')
+
+def regis_user_editor(request):
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name', '').strip()
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+        rol_id = request.POST.get('rol')
+     
+        # Validación de campos vacíos
+        if not all([first_name, username, password, rol_id]):
+            messages.error(request, 'Todos los campos son obligatorios.')
+            return redirect('datos_user')
+        
+        # Validación de longitud mínima de password
+        if len(password) < 8:
+            messages.error(request, 'La contraseña debe tener al menos 8 caracteres.')
+            return redirect('datos_user')
+            
+        # Validación de formato de username
+        if not username.isalnum():
+            messages.error(request, 'El nombre de usuario solo puede contener letras y números.')
+            return redirect('datos_user')
+            
+        # Verificar si el nombre de usuario ya existe
+        if User.objects.filter(username__iexact=username).exists():
+            messages.error(request, 'El nombre de usuario ya existe. Por favor, elige otro.')
+            return redirect('datos_user')
+
+        try:
+        
+            with transaction.atomic():
+             
+                new_user = User.objects.create_user(
+                    first_name = first_name,
+                    username=username,
+                    password=password,
+                )
+
+                
+                rol_instance = get_object_or_404(Group, id=rol_id)
+                new_user.groups.add(rol_instance)
+
+               
+
+                messages.success(request, f'El usuario {username} ha sido registrado exitosamente.')
+                return redirect('datos_user')
+            
+        except Exception as e:
+            messages.error(request, f'Error inesperado al registrar el usuario: {str(e)}')
+            return redirect('datos_user')
+    
+    
+    
+    
+    return render(request, 'paginas/datos_user.html')
+
+def eliminar_datos_user(request,id):
+  
+     user = User.objects.get(id=id)
+     user.delete()
+     messages.success(request, f'El Usuario fue eliminado correctamente')
+     return redirect('datos_user')
+ 
+ 
+@login_required
+def perfil_segu(request):
+    all_usuario = User.objects.all()
+    
+    return render(request, 'paginas/perfil_segu.html', {'all_usuario': all_usuario})
+
+
+def cambio_password_segu(request):
+    if request.method == 'POST':
+        
+        user = request.user
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if not user.check_password(current_password):
+            messages.error(request, 'La contraseña actual es incorrecta.')
+            return redirect('perfil_segu') 
+
+        if new_password != confirm_password:
+            messages.error(request, 'Las nuevas contraseñas no coinciden.')
+            return redirect('perfil_segu')
+
+        if len(new_password) < 8:
+            messages.error(request, 'La nueva contraseña debe tener al menos 8 caracteres.')
+            return redirect('perfil_segu')
+
+        user.set_password(new_password)
+        user.save()
+        messages.success(request, 'La contraseña se ha cambiado exitosamente.')
+        
+        logout(request) 
+        return redirect('index')
+    
+    return render(request, 'paginas/perfil_segu.html')
 #-----------------------------------fin de seguridad---------------------------------------------------- #

@@ -6,32 +6,22 @@
 <div id="layoutSidenav_content">
     <main>
         <div class="container-fluid px-4 py-8">
-            <h1 class="text-3xl font-bold mb-8 text-center">
-                Estado del Disco
+            <h1 class="text-3xl font-bold mb-8 text-center text-emphasis-dark">
+                Espacio del Disco
             </h1>
 
             {% if main_disk_data %}
-            <div class="bg-light rounded-lg shadow-lg p-6 mb-8">
+            <div class="card bg-body-tertiary rounded-lg shadow-lg p-5 mt-5">
                 <div class="d-flex justify-content-between mb-2">
-                    <span class="font-weight-bold text-dark">Espacio en disco</span>
                     <span class="text-muted small">Última actualización: {{ main_disk_data.last_updated }}</span>
                 </div>
 
-                <div class="progress mb-4">
-                    <div
-                        class="progress-bar bg-gradient"
-                        style="width: {{ main_disk_data.percentage_used }}%;"
-                        aria-valuenow="{{ main_disk_data.percentage_used }}"
-                        aria-valuemin="0"
-                        aria-valuemax="100">
-                    </div>
-                </div>
-
-                <div class="row">
+                <div class="row p-6">
                     <div class="col-md-4 mb-4">
                         <div class="bg-primary text-white p-4 rounded-lg">
                             <div class="font-weight-bold">Total</div>
                             <div class="h2">{{ main_disk_data.total }}</div>
+                            <div class="small">{{ main_disk_data.total }} disponible</div>
                         </div>
                     </div>
 
@@ -54,8 +44,9 @@
             </div>
             {% endif %}
 
-            <div class="bg-light rounded-lg shadow-lg p-6">
-                <h2 class="h4 font-weight-semibold mb-4 text-dark">Particiones del sistema</h2>
+            <div class="card bg-body-tertiary rounded-lg shadow-lg px-5 mt-2">
+                <br>
+                <h2 class="h4 font-weight-semibold mb-4 text-emphasis-dark">Particiones del sistema</h2>
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead class="thead-light">
@@ -75,8 +66,7 @@
                                 <td>{{ partition.free }}</td>
                                 <td>{{ partition.used }}</td>
                                 <td>
-                                   
-                                </td>
+                                    </td>
                             </tr>
                             {% empty %}
                             <tr>

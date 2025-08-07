@@ -10,13 +10,51 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <link rel="stylesheet" href="{% static 'css/nuevo.css' %}">
     <link rel="shortcut icon" href="{% static 'img/logo.ico' %}" type="image/x-icon">
+
+    <style>
+     .contenedor-tv {
+    position: relative; /* Contenedor principal */
+    width: 100%;
+    max-width: 800px; /* Ancho máximo del contenedor */
+    margin: 0 auto; /* Centra el contenedor horizontalmente */
+    margin-top: 135px;
+}
+
+.muñequito {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.pantalla-video {
+    position: absolute;
+    top: 36%; /* Ajusta la posición vertical del video */
+    left: 66.5%; /* Ajusta la posición horizontal del video */
+    width: 65%; /* Ajusta el ancho del video */
+    height: 60%; /* Ajusta la altura del video */
+    transform: translate(-50%, -50%); /* Centra el video */
+    z-index: 1; /* Muestra el video encima de la imagen */
+}
+
+.pantalla-video video {
+    width: 100%;
+    height: 100%;
+    object-fit: fill; /* Rellena el espacio del video */
+}
+
+.video-controls{
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+}
+    </style>
 </head>
 <body class="fondo">
 
         {% block content %}
  
         {% endblock %}
-          <a href="{% url 'index' %}" class="btn btn-primary m-auto boton">Inicio</a>
+        <!--  <a href="{% url 'index' %}" class="btn btn-primary m-auto boton">Inicio</a>  --->
     <!-- <?php  include "config/videoplayer.php";  ?> Enlace a Bootstrap JS y jQuery (necesarios para algunas funcionalidades de Bootstrap) -->
    
     <script src="{% static 'estilos/js/videoplayer.js' %}" ></script>

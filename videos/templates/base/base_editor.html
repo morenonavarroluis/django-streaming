@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> <!-- Cambia a un archivo local si es necesario -->
     <link rel="stylesheet" href="{% static './css/tablas.css' %}">
     <link rel="stylesheet" href="{% static './css/perfil.css' %}">
+    <link rel="shortcut icon" href="{% static './img/logo.png' %}" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -41,9 +44,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'espacio_editor' %}"><i class="fas fa-map-marker-alt me-1"></i> Espacio Libre</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="cambio_pass_editor"><i class="fas fa-key me-1"></i> Cambiar contraseña</a>
-                    </li>
+                   
                 </ul>
 
                 <!-- Menú usuario -->
@@ -54,7 +55,7 @@
                             <span class="d-none d-lg-inline">Usuario</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="perfil_admin"><i class="fas fa-user-circle me-2"></i> Perfil</a></li>
+                            <li><a class="dropdown-item" href="perfil_editor"><i class="fas fa-user-circle me-2"></i> Perfil</a></li>
                             <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Configuración</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Salir</a></li>
@@ -63,9 +64,10 @@
                 </ul>
 
                 <!-- Botón de cambio de tema -->
-                <button class="btn  ms-2" id="themeToggle" aria-label="Cambiar tema">
-                    <i class="fas fa-moon" style="color: white;" id="themeIcon"></i>
-                </button>
+               <button class="btn ms-2" id="themeToggle" aria-label="Cambiar tema">
+                    <i class="fas fa-moon" style="color: rgb(255, 255, 255);" id="themeIcon"></i>
+              </button>
+
             </div>
         </div>
     </nav>
@@ -73,13 +75,7 @@
     {% block content %}
     {% endblock %}
 
-    <style>
-        body.dark-mode {
-            background-color: #121212;
-            color: #f1f1f1;
-        }
-    
-    </style>
+   
     <script src="{% static 'estilos/js/tablas.js' %}" ></script>
     <script src="{% static 'estilos/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'estilos/js/dark.js' %}"></script>

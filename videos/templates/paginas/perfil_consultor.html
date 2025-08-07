@@ -1,0 +1,98 @@
+{% extends "base/base_consulta.html" %}
+
+{% block titulo %} MercalStream - Perfil {% endblock %}
+
+{% block content %}
+    {% if messages %}
+           {% for message in messages %}
+               <script>
+                   Swal.fire({
+                       title: '{{ message.tags|title }}',
+                       text: '{{ message }}',
+                       icon: '{{ message.tags }}'
+                   });
+               </script>
+           {% endfor %}
+       {% endif %}
+
+    <div class="co">
+        <div class="profile-header bg-body-tertiary rounded-3 p-4 shadow-sm">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="profile-name text-emphasis-dark">{{ request.user.first_name }} {{ request.user.last_name }}</h1>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cambio">
+                    Cambiar Contraseña
+                </button>
+            </div>
+            
+            <img src="../../../static/img/perf.png" alt="Retrato profesional de un hombre con traje gris y corbata azul, fondo de oficina moderna" class="profile-photo rounded-circle mb-3">
+            
+            <h2 class="profile-title text-muted mb-4">
+                {% if request.user.groups.all %}
+                    {{ request.user.groups.all.0.name }}
+                {% else %}
+                    Sin grupo
+                {% endif %}
+            </h2>
+
+           <div class="row g-3">
+                <div class="col-md-6 col-sm-12"> 
+                    <label for="nombre" class="form-label text-emphasis-dark">Nombre</label>
+                    <div class="input-group">
+                        <input type="text" id="nombre" class="form-control" value="{{ request.user.first_name }}" disabled>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12"> 
+                    <label for="apellido" class="form-label text-emphasis-dark">Apellido</label>
+                    <div class="input-group">
+                        <input type="text" id="apellido" class="form-control" value="{{ request.user.last_name }}" disabled>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12"> 
+                    <label for="usuario" class="form-label text-emphasis-dark">Usuario</label>
+                    <div class="input-group">
+                        <input type="text" id="usuario" class="form-control" value="{{ request.user.username }}" disabled>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <label for="correo" class="form-label text-emphasis-dark">Correo</label> 
+                    <div class="input-group">
+                        <input type="text" id="correo" class="form-control" value="{{ request.user.email }}" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="modal fade" id="cambio" tabindex="-1" aria-labelledby="cambiarPasswordModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cambiarPasswordModalLabel">Cambiar Contraseña</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="cambio_de_password" method="post">
+             {% csrf_token %}
+            <div class="mb-3">
+                <label for="current_password" class="form-label">Contraseña actual</label>
+                <input type="password" class="form-control" id="current_password" name="current_password">
+            </div>
+            <div class="mb-3">
+                <label for="new_password" class="form-label">Nueva Contraseña</label>
+                <input type="password" class="form-control" id="new_password" name="new_password">
+            </div>
+            <div class="mb-3">
+                <label for="confirm_password" class="form-label">Confirmar Contraseña</label>
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-primary">Cambiar</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
