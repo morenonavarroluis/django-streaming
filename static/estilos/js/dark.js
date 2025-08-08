@@ -13,13 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
             htmlElement.setAttribute('data-bs-theme', 'light');
             themeIcon.classList.remove('fa-moon');
             themeIcon.classList.add('fa-sun');
-            themeIcon.style.color = 'black'; // Cambia el color del ícono para el tema claro
+            themeIcon.style.color = 'yellow'; // Cambia el color del ícono para el tema claro
         } else {
             // Si el tema actual es claro, lo cambia a oscuro
             htmlElement.setAttribute('data-bs-theme', 'dark');
             themeIcon.classList.remove('fa-sun');
             themeIcon.classList.add('fa-moon');
-            themeIcon.style.color = 'white'; // Cambia el color del ícono para el tema oscuro
+            themeIcon.style.color = 'black'; // Cambia el color del ícono para el tema oscuro
         }
     }
 

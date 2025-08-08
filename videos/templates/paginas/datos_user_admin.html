@@ -24,7 +24,7 @@
                      
                             <br>
                             <br>
-    <div class="conta">
+    <div class="conta card">
         <h2>Usuarios</h2>
            <div>
        
@@ -41,7 +41,7 @@
             </select>
         </div>
 
-                <table id="myTable">
+                <table id="myTable" class="table table-hover table-striped table-responsive">
                 <thead>
                     <tr>
                         <th>Usuario</th>
@@ -67,9 +67,9 @@
             
             <td>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="visually">opcion</span>
-                    </button>
+                                     <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    Opción
+                                      </button>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#Modalpersonaadmineditar{{ user.id }}" href="#">Editar</a></li>
                                                     {% url 'eliminar_user_admin' user.id as ruta %}
@@ -110,7 +110,7 @@
 
         <div class="pagination">
             <button id="prevBtn">Anterior</button>
-            <span id="pageNumbers"></span>
+            <h6 id="pageNumbers"></h6>
             <button id="nextBtn">Siguiente</button>
         </div>
     </div>
