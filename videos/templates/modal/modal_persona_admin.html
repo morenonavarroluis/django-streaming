@@ -15,15 +15,15 @@
         {% csrf_token %}
 
         <label for="">Nombre</label>
-        <input type="text" class="form-control" placeholder="{{ user.first_name}}" aria-label="nombre" aria-describedby="basic-addon1" name="first_name" required>
+        <input type="text" class="form-control" placeholder="{{ user.first_name}}" aria-label="nombre" aria-describedby="basic-addon1" name="first_name" >
         <br>
 
         <label for="">Usuario</label>
-        <input type="text" class="form-control mt-2" placeholder="{{ user.username }}" aria-label="username" scribedby="basic-addon1" name="username" required>
+        <input type="text" class="form-control mt-2" placeholder="{{ user.username }}" aria-label="username" scribedby="basic-addon1" name="username" >
         <br>
         
         <label for="">Contraseña</label>
-        <input type="text" class="form-control mt-2" placeholder="{{ user.password }}" aria-label="Password" aria-describedby="basic-addon1" name="password" required>
+        <input type="text" class="form-control mt-2" placeholder="{{ user.password }}" aria-label="Password" aria-describedby="basic-addon1" name="password" >
        <br>
 
         <label for="">Rol</label>

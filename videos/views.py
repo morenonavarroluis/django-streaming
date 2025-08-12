@@ -48,6 +48,8 @@ def index(request):
         form = AuthenticationForm()
         return render(request, 'paginas/index.html', {'form': form})
 #--------------------------fin de logica de login----------------------------------#
+
+
 #-------------------------consulta para ver los videos -----------------------------------#
 # vista de la pagina  todos los videos
 def videos(request):
@@ -78,22 +80,29 @@ def eliminar_video_admin(request, video_id):
     return render(request, 'confirmar_eliminacion.html', {'video': video})
 
 
+
 def editar_name_video(request, video_id): 
     
     video = get_object_or_404(Videos, video_id=video_id)
 
     if request.method == 'POST':
-        
-        new_video_name = request.POST.get('video_name')
-
-        if new_video_name:
-            video.video_name = new_video_name
-            video.save()
-            messages.success(request, f'El nombre del video fue actualizado exitosamente a {new_video_name}.')
+        try:
+            new_video_name = request.POST.get('video_name')
+            
+            
+            if new_video_name:
+                video.video_name = new_video_name
+                video.save()
+                messages.success(request, f'El nombre del video fue actualizado exitosamente a {new_video_name}.')
+            else:
+                
+                messages.info(request, 'No se proporcionó un nuevo nombre. El nombre del video se mantuvo sin cambios.')
+            
             return redirect('administrador')
-        else:
-            messages.error(request, 'El nombre del video no puede estar vacío.')
-
+        
+        except Exception as e:
+            messages.error(request, f'Ocurrió un error al actualizar el nombre: {e}')
+            return redirect('datos_user_admin')
     
     return render(request, 'paginas/admin.html', {'video': video})
         
@@ -102,32 +111,40 @@ def editar_user_admin(request, id):
     
     use = get_object_or_404(User, id=id)
 
-   
     if request.method == 'POST':
-       
         try:
             with transaction.atomic():   
                 first_name = request.POST.get('first_name')
                 username = request.POST.get('username')
                 password = request.POST.get('password')
                 rol_id = request.POST.get('rol') 
-                use.first_name = first_name
-                use.username = username
+                
+               
+                if first_name:
+                    use.first_name = first_name
+                
+                
+                if username:
+                    use.username = username
+                
+               
                 if password:
                     use.set_password(password)
+                
                 use.save()
+                
+                
                 if rol_id:
                     nuevo_rol = get_object_or_404(Group, id=rol_id)   
                     use.groups.clear()
                     use.groups.add(nuevo_rol)
+                
                 messages.success(request, 'Usuario actualizado exitosamente.')
                 return redirect('datos_user_admin') 
 
         except Exception as e:
-           
             messages.error(request, f'Ocurrió un error al actualizar el usuario: {e}')
             return redirect('datos_user_admin')
-
   
      
          
@@ -136,13 +153,32 @@ def editar_user_admin(request, id):
 #funcion para registrar una videos
 def video_regis(request):
     if request.method == 'POST':
-        video = Videos()       
-        video.video_name = request.POST.get('name')
-        video.location = request.FILES.get('video')        
-        video.save()
-        messages.success(request, f'El video fue guardado exitosamente')
-        return redirect('administrador')  
-
+        video = Videos()
+        
+        
+        new_video_name = request.POST.get('name')
+        
+        
+        uploaded_file = request.FILES.get('video')
+        
+        if uploaded_file and new_video_name:
+        
+            extension = os.path.splitext(uploaded_file.name)[1]
+            uploaded_file.name = new_video_name + extension
+            
+            
+            video.video_name = new_video_name
+            video.location = uploaded_file
+            
+           
+            video.save()
+            messages.success(request, f'El video "{new_video_name}" fue guardado exitosamente.')
+            return redirect('administrador')
+        else:
+            messages.error(request, 'Debes proporcionar un nombre y un archivo de video.')
+            return redirect('administrador')
+            
+    return render(request, 'admin.html') 
 
 
 
@@ -359,32 +395,60 @@ def editor(request):
 
 
 def video_editor(request, video_id):
-    # Obtener el objeto Video o mostrar un error 404 si no existe
-    video = get_object_or_404(Videos, video_id=video_id)
-
-    if request.method == 'POST':
-        # Actualiza solo el nombre del video si el formulario lo envía
-        if 'video_name' in request.POST:
-            video.video_name = request.POST.get('video_name')
-        
-        # Opcional: Si también quieres permitir cambiar el archivo, usa esto
-        # if 'video' in request.FILES:
-        #     video.location = request.FILES.get('video')
-
-        video.save()
-        print("Video actualizado:", video.video_name)
-        return redirect('editor')
     
-    # Si la solicitud no es POST, renderiza la plantilla (si es necesario)
-    return render(request, 'nombre_de_tu_template.html', {'video': video})
+        video = get_object_or_404(Videos, video_id=video_id)
+
+        if request.method == 'POST':
+                try:
+                    new_video_name = request.POST.get('video_name')
+                    
+                    
+                    if new_video_name:
+                        video.video_name = new_video_name
+                        video.save()
+                        messages.success(request, f'El nombre del video fue actualizado exitosamente a {new_video_name}.')
+                    else:
+                        
+                        messages.info(request, 'No se proporcionó un nuevo nombre. El nombre del video se mantuvo sin cambios.')
+                    
+                    return redirect('editor')
+                
+                except Exception as e:
+                    messages.error(request, f'Ocurrió un error al actualizar el nombre: {e}')
+                    return redirect('datos_user_admin')
+            
+        return render(request, 'paginas/editor.html', {'video': video})
+    
 def regis_editor(request):
+   
     if request.method == 'POST':
-        video = Videos()       
-        video.video_name = request.POST.get('name')
-        video.location = request.FILES.get('video')        
-        video.save()
-        messages.success(request, f'El video fue guardado exitosamente')
-        return redirect('editor')  
+        video = Videos()
+        
+        
+        new_video_name = request.POST.get('name')
+        
+        
+        uploaded_file = request.FILES.get('video')
+        
+        if uploaded_file and new_video_name:
+        
+            extension = os.path.splitext(uploaded_file.name)[1]
+            uploaded_file.name = new_video_name + extension
+            
+            
+            video.video_name = new_video_name
+            video.location = uploaded_file
+            
+           
+            video.save()
+            messages.success(request, f'El video "{new_video_name}" fue guardado exitosamente.')
+            return redirect('editor')
+        else:
+            messages.error(request, 'Debes proporcionar un nombre y un archivo de video.')
+            return redirect('editor')
+            
+    return render(request, 'editor.html') 
+
     
        
 def eliminar_video_editor(request, video_id):
@@ -601,31 +665,42 @@ def datos_user(request):
     return render(request, 'paginas/datos_user.html', {'usuarios': usuarios , 'groups':  groups })
 
 def editar_datos_user(request,id):
-        use = get_object_or_404(User, id=id)
-        if request.method == 'POST':
-        
-            try:
-                with transaction.atomic():   
-                    first_name = request.POST.get('first_name')
-                    username = request.POST.get('username')
-                    password = request.POST.get('password')
-                    rol_id = request.POST.get('rol') 
-                    use.first_name = first_name
-                    use.username = username
-                    if password:
-                        use.set_password(password)
-                    use.save()
-                    if rol_id:
-                        nuevo_rol = get_object_or_404(Group, id=rol_id)   
-                        use.groups.clear()
-                        use.groups.add(nuevo_rol)
-                    messages.success(request, 'Usuario actualizado exitosamente.')
-                    return redirect('datos_user') 
+         use = get_object_or_404(User, id=id)
 
-            except Exception as e:
-            
-                messages.error(request, f'Ocurrió un error al actualizar el usuario: {e}')
-                return redirect('datos_user')
+         if request.method == 'POST':
+                try:
+                    with transaction.atomic():   
+                        first_name = request.POST.get('first_name')
+                        username = request.POST.get('username')
+                        password = request.POST.get('password')
+                        rol_id = request.POST.get('rol') 
+                        
+                    
+                        if first_name:
+                            use.first_name = first_name
+                        
+                        
+                        if username:
+                            use.username = username
+                        
+                    
+                        if password:
+                            use.set_password(password)
+                        
+                        use.save()
+                        
+                        
+                        if rol_id:
+                            nuevo_rol = get_object_or_404(Group, id=rol_id)   
+                            use.groups.clear()
+                            use.groups.add(nuevo_rol)
+                        
+                        messages.success(request, 'Usuario actualizado exitosamente.')
+                        return redirect('datos_user') 
+
+                except Exception as e:
+                    messages.error(request, f'Ocurrió un error al actualizar el usuario: {e}')
+                    return redirect('datos_user')
 
 def regis_user_editor(request):
     if request.method == 'POST':
